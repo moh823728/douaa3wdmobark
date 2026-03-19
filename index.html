@@ -1,189 +1,219 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>عيدك مبارك يا دودوتي 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
 
-const heartsData = Array.from({ length: 20 }, (_, i) => ({
-  id: i,
-  emoji: ['💕','💗','💓','🌸','✨','💖','🩷'][Math.floor(Math.random() * 7)],
-  left: Math.random() * 100,
-  size: 14 + Math.random() * 14,
-  duration: 5 + Math.random() * 6,
-  delay: Math.random() * 6,
-}));
+    body {
+      font-family:'Tajawal',sans-serif;
+      min-height:100vh;
+      background:linear-gradient(160deg,#ffb3c6 0%,#ff8fab 40%,#ffc8dd 100%);
+      direction:rtl;
+      overflow-x:hidden;
+    }
 
-const S = `
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
-* { margin:0; padding:0; box-sizing:border-box; }
-.root {
-  font-family:'Tajawal',sans-serif;
-  min-height:100vh;
-  background:linear-gradient(160deg,#ffb3c6 0%,#ff8fab 40%,#ffc8dd 100%);
-  direction:rtl;
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-@keyframes floatUp {
-  0%   { transform:translateY(0) scale(1); opacity:0.8; }
-  100% { transform:translateY(-110vh) scale(0.4); opacity:0; }
-}
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(35px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes pulse {
-  0%,100% { transform:scale(1); }
-  50%      { transform:scale(1.05); }
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@keyframes bounce {
-  0%,100% { transform: translateY(0) scale(1); }
-  30%     { transform: translateY(-18px) scale(1.1); }
-  60%     { transform: translateY(-8px) scale(1.05); }
-}
-@keyframes sparkle {
-  0%,100% { opacity:1; transform:scale(1) rotate(0deg); }
-  50%     { opacity:0.5; transform:scale(1.4) rotate(180deg); }
-}
-@keyframes glow {
-  0%,100% { box-shadow: 0 0 20px rgba(255,100,150,0.4), 0 0 40px rgba(255,150,180,0.2); }
-  50%     { box-shadow: 0 0 40px rgba(255,100,150,0.7), 0 0 80px rgba(255,150,180,0.4); }
-}
-.heart-float { position:fixed; bottom:-50px; pointer-events:none; z-index:0; animation:floatUp linear infinite; }
-.page { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:22px; padding:40px 20px; min-height:100vh; justify-content:center; animation:fadeUp 0.7s ease both; }
-.title { font-size:clamp(1.9rem,7vw,3rem); font-weight:900; color:white; text-align:center; text-shadow:0 3px 20px rgba(180,30,80,0.4); letter-spacing:2px; }
-.sub   { font-size:1rem; color:rgba(255,255,255,0.92); text-align:center; text-shadow:0 2px 8px rgba(180,30,80,0.3); margin-top:-10px; }
-.btn1  { background:linear-gradient(135deg,#ff6b9d,#ff8fab,#ffb3c6); color:white; font-family:'Tajawal',sans-serif; font-size:1.05rem; font-weight:900; padding:12px 32px; border:2px solid rgba(255,255,255,0.4); border-radius:50px; cursor:pointer; box-shadow:0 6px 24px rgba(255,100,150,0.55); animation:pulse 2.2s ease-in-out infinite; text-shadow:0 1px 4px rgba(0,0,0,0.2); }
-.btn2  { background:linear-gradient(135deg,#c77dff,#e0aaff); color:white; font-family:'Tajawal',sans-serif; font-size:0.98rem; font-weight:700; padding:10px 26px; border:2px solid rgba(255,255,255,0.3); border-radius:50px; cursor:pointer; box-shadow:0 5px 18px rgba(180,100,255,0.45); transition:transform 0.2s; }
-.btn2:hover { transform:scale(1.05); }
-.btnb  { background:rgba(255,255,255,0.22); color:white; font-family:'Tajawal',sans-serif; font-size:0.88rem; font-weight:700; padding:8px 22px; border:2px solid rgba(255,255,255,0.45); border-radius:50px; cursor:pointer; backdrop-filter:blur(6px); transition:background 0.2s; }
-.btnb:hover { background:rgba(255,255,255,0.4); }
-.anim-box {
-  width:min(300px,85vw);
-  background:rgba(255,255,255,0.25);
-  backdrop-filter:blur(10px);
-  border-radius:28px;
-  border:3px solid rgba(255,255,255,0.6);
-  padding:28px 20px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:16px;
-  animation:glow 2.5s ease-in-out infinite;
-}
-.anim-text {
-  font-size:1.4rem;
-  font-weight:900;
-  color:white;
-  text-shadow:0 2px 12px rgba(180,30,80,0.5);
-  text-align:center;
-  letter-spacing:1px;
-}
-.hearts-row {
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:center;
-}
-.h1 { font-size:3rem; animation:bounce 1.4s ease-in-out infinite; }
-.h2 { font-size:2.2rem; animation:bounce 1.4s ease-in-out infinite 0.2s; }
-.h3 { font-size:2.8rem; animation:bounce 1.4s ease-in-out infinite 0.4s; }
-.h4 { font-size:1.8rem; animation:bounce 1.4s ease-in-out infinite 0.6s; }
-.stars-row {
-  display:flex;
-  gap:10px;
-  justify-content:center;
-}
-.s1 { font-size:1.8rem; animation:sparkle 1.5s ease-in-out infinite; }
-.s2 { font-size:1.4rem; animation:sparkle 1.5s ease-in-out infinite 0.3s; }
-.s3 { font-size:2rem; animation:sparkle 1.5s ease-in-out infinite 0.6s; }
-.flower-row {
-  display:flex;
-  gap:14px;
-  font-size:1.6rem;
-}
-.fl { animation:spin 4s linear infinite; display:inline-block; }
-.msg-card { background:rgba(255,255,255,0.88); backdrop-filter:blur(12px); border-radius:24px; padding:26px 24px; max-width:min(540px,90vw); width:100%; box-shadow:0 12px 50px rgba(200,50,100,0.18); border:2px solid rgba(255,182,193,0.5); max-height:50vh; overflow-y:auto; animation:fadeUp 0.6s ease both; }
-.msg-card::-webkit-scrollbar { width:5px; }
-.msg-card::-webkit-scrollbar-thumb { background:#ff8fab; border-radius:10px; }
-.msg-text { font-size:1.03rem; line-height:2.1; color:#6d2b4e; white-space:pre-line; text-align:right; }
-`;
+    /* قلوب طايرة */
+    .hearts-container {
+      position:fixed; inset:0;
+      pointer-events:none; z-index:0; overflow:hidden;
+    }
+    .heart {
+      position:absolute; bottom:-60px;
+      animation:floatUp linear infinite; opacity:0.8;
+    }
+    @keyframes floatUp {
+      0%   { transform:translateY(0) scale(1); opacity:0.8; }
+      100% { transform:translateY(-110vh) scale(0.4); opacity:0; }
+    }
 
-function AnimBox() {
-  return (
-    <div className="anim-box">
-      <div className="flower-row">
-        <span className="fl">🌸</span>
-        <span className="fl" style={{animationDelay:"1s"}}>🌺</span>
-        <span className="fl" style={{animationDelay:"2s"}}>🌸</span>
-        <span className="fl" style={{animationDelay:"0.5s"}}>🌺</span>
+    /* الصفحتان */
+    .page {
+      display:none;
+      position:relative; z-index:1;
+      min-height:100vh;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:26px;
+      padding:40px 20px;
+    }
+    .page.active { display:flex; animation:fadeUp 0.7s ease both; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(35px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* العنوان */
+    .title {
+      font-size:clamp(1.9rem,7vw,3rem);
+      font-weight:900; color:white; text-align:center;
+      text-shadow:0 3px 20px rgba(180,30,80,0.4);
+      letter-spacing:2px;
+    }
+    .sub {
+      font-size:1rem; color:rgba(255,255,255,0.92);
+      text-align:center;
+      text-shadow:0 2px 8px rgba(180,30,80,0.3);
+      margin-top:-14px;
+    }
+
+    /* الأزرار */
+    .btn1 {
+      background:linear-gradient(135deg,#ff6b9d,#ff8fab,#ffb3c6);
+      color:white; font-family:'Tajawal',sans-serif;
+      font-size:1.05rem; font-weight:900;
+      padding:12px 32px; border:2px solid rgba(255,255,255,0.4);
+      border-radius:50px; cursor:pointer;
+      box-shadow:0 6px 24px rgba(255,100,150,0.55);
+      animation:pulse 2.2s ease-in-out infinite;
+      text-shadow:0 1px 4px rgba(0,0,0,0.2);
+    }
+    .btn2 {
+      background:linear-gradient(135deg,#c77dff,#e0aaff);
+      color:white; font-family:'Tajawal',sans-serif;
+      font-size:0.98rem; font-weight:700;
+      padding:10px 26px; border:2px solid rgba(255,255,255,0.3);
+      border-radius:50px; cursor:pointer;
+      box-shadow:0 5px 18px rgba(180,100,255,0.45);
+      transition:transform 0.2s;
+    }
+    .btn2:hover { transform:scale(1.05); }
+    .btnb {
+      background:rgba(255,255,255,0.22); color:white;
+      font-family:'Tajawal',sans-serif; font-size:0.88rem; font-weight:700;
+      padding:8px 22px; border:2px solid rgba(255,255,255,0.45);
+      border-radius:50px; cursor:pointer;
+      backdrop-filter:blur(6px); transition:background 0.2s;
+    }
+    .btnb:hover { background:rgba(255,255,255,0.4); }
+
+    @keyframes pulse {
+      0%,100% { transform:scale(1); }
+      50%      { transform:scale(1.05); }
+    }
+
+    /* بوكس الأنيميشن */
+    .anim-box {
+      width:min(300px,85vw);
+      background:rgba(255,255,255,0.25);
+      backdrop-filter:blur(10px);
+      border-radius:28px;
+      border:3px solid rgba(255,255,255,0.6);
+      padding:28px 20px;
+      display:flex; flex-direction:column;
+      align-items:center; gap:16px;
+      animation:glow 2.5s ease-in-out infinite;
+    }
+    @keyframes glow {
+      0%,100% { box-shadow:0 0 20px rgba(255,100,150,0.4),0 0 40px rgba(255,150,180,0.2); }
+      50%     { box-shadow:0 0 40px rgba(255,100,150,0.7),0 0 80px rgba(255,150,180,0.4); }
+    }
+    .anim-text {
+      font-size:1.3rem; font-weight:900; color:white;
+      text-shadow:0 2px 12px rgba(180,30,80,0.5);
+      text-align:center; letter-spacing:1px;
+    }
+    .hearts-row { display:flex; gap:12px; align-items:center; justify-content:center; }
+    .stars-row  { display:flex; gap:10px; justify-content:center; }
+    .flower-row { display:flex; gap:14px; font-size:1.6rem; }
+
+    .h1 { font-size:3rem;   animation:bounce 1.4s ease-in-out infinite; }
+    .h2 { font-size:2.2rem; animation:bounce 1.4s ease-in-out infinite 0.2s; }
+    .h3 { font-size:2.8rem; animation:bounce 1.4s ease-in-out infinite 0.4s; }
+    .h4 { font-size:1.8rem; animation:bounce 1.4s ease-in-out infinite 0.6s; }
+    .s1 { font-size:1.8rem; animation:sparkle 1.5s ease-in-out infinite; }
+    .s2 { font-size:1.4rem; animation:sparkle 1.5s ease-in-out infinite 0.3s; }
+    .s3 { font-size:2rem;   animation:sparkle 1.5s ease-in-out infinite 0.6s; }
+    .fl { animation:spin 4s linear infinite; display:inline-block; }
+
+    @keyframes bounce {
+      0%,100% { transform:translateY(0) scale(1); }
+      30%     { transform:translateY(-18px) scale(1.1); }
+      60%     { transform:translateY(-8px) scale(1.05); }
+    }
+    @keyframes sparkle {
+      0%,100% { opacity:1; transform:scale(1) rotate(0deg); }
+      50%     { opacity:0.5; transform:scale(1.4) rotate(180deg); }
+    }
+    @keyframes spin {
+      from { transform:rotate(0deg); }
+      to   { transform:rotate(360deg); }
+    }
+
+    /* الرسالة */
+    #msgArea {
+      display:none;
+      background:rgba(255,255,255,0.88);
+      backdrop-filter:blur(12px);
+      border-radius:24px; padding:26px 24px;
+      max-width:min(540px,90vw); width:100%;
+      box-shadow:0 12px 50px rgba(200,50,100,0.18);
+      border:2px solid rgba(255,182,193,0.5);
+      max-height:50vh; overflow-y:auto;
+      animation:fadeUp 0.6s ease both;
+    }
+    #msgArea::-webkit-scrollbar { width:5px; }
+    #msgArea::-webkit-scrollbar-thumb { background:#ff8fab; border-radius:10px; }
+    #msgArea p {
+      font-size:1.05rem; line-height:2.2;
+      color:#6d2b4e; white-space:pre-line; text-align:right;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- قلوب طايرة -->
+  <div class="hearts-container" id="heartsContainer"></div>
+
+  <!-- ======= صفحة 1 ======= -->
+  <div class="page active" id="page1">
+    <div>
+      <div class="title">🌸 عيدك مبارك يا دودوتي 🌸</div>
+      <div class="sub">كل عام وأنتِ أغلى شيء في حياتي 💕</div>
+    </div>
+    <button class="btn1" onclick="goPage2()">💖 اضغطي هنا يا دودوتيي 💖</button>
+  </div>
+
+  <!-- ======= صفحة 2 ======= -->
+  <div class="page" id="page2">
+    <div class="title" style="font-size:clamp(1.4rem,5vw,2.1rem)">
+      🌸 عيدك مبارك يا دودوتي 🌸
+    </div>
+
+    <!-- أنيميشن بدل GIF -->
+    <div class="anim-box">
+      <div class="flower-row">
+        <span class="fl">🌸</span>
+        <span class="fl" style="animation-delay:1s">🌺</span>
+        <span class="fl" style="animation-delay:2s">🌸</span>
+        <span class="fl" style="animation-delay:0.5s">🌺</span>
       </div>
-      <div className="hearts-row">
-        <span className="h1">💖</span>
-        <span className="h2">🩷</span>
-        <span className="h3">💗</span>
-        <span className="h4">💕</span>
+      <div class="hearts-row">
+        <span class="h1">💖</span>
+        <span class="h2">🩷</span>
+        <span class="h3">💗</span>
+        <span class="h4">💕</span>
       </div>
-      <div className="anim-text">عيد مبارك يا دودوتي 🎀</div>
-      <div className="stars-row">
-        <span className="s1">✨</span>
-        <span className="s2">⭐</span>
-        <span className="s3">✨</span>
-        <span className="s2">⭐</span>
-        <span className="s1">✨</span>
+      <div class="anim-text">عيد مبارك يا دودوتي 🎀</div>
+      <div class="stars-row">
+        <span class="s1">✨</span>
+        <span class="s2">⭐</span>
+        <span class="s3">✨</span>
+        <span class="s2">⭐</span>
+        <span class="s1">✨</span>
       </div>
     </div>
-  );
-}
 
-export default function App() {
-  const [page, setPage] = useState(1);
-  const [showMsg, setShowMsg] = useState(false);
+    <button class="btn2" onclick="showMsg()">💌  اضغطي هنا لي رئيه مفاجئه💌</button>
 
-  return (
-    <>
-      <style>{S}</style>
-      <div className="root">
-
-        {heartsData.map(h => (
-          <div key={h.id} className="heart-float" style={{
-            left: `${h.left}vw`,
-            fontSize: h.size,
-            animationDuration: `${h.duration}s`,
-            animationDelay: `${h.delay}s`,
-          }}>{h.emoji}</div>
-        ))}
-
-        {page === 1 && (
-          <div className="page" key="p1">
-            <div>
-              <div className="title">🌸 عيدك مبارك يا دودوتي 🌸</div>
-              <div className="sub">كل عام وأنتِ أغلى شيء في حياتي 💕</div>
-            </div>
-            <button className="btn1" onClick={() => { setPage(2); setShowMsg(false); }}>
-              💖 اضغطي هنا يا دودوتيي 💖
-            </button>
-          </div>
-        )}
-
-        {page === 2 && (
-          <div className="page" key="p2">
-            <div className="title" style={{ fontSize:"clamp(1.4rem,5vw,2.1rem)" }}>
-              🌸 عيدك مبارك يا دشدوشتي 🌸
-            </div>
-
-            <AnimBox />
-
-            <button className="btn2" onClick={() => setShowMsg(true)}>
-              💌 عبزي هنا ياحلوتي عيوني💌
-            </button>
-
-            {showMsg && (
-              <div className="msg-card">
-                <p className="msg-text">{`يا دعاء يا بهجة العيد ويا أول أماني الفطر السعيد
+    <div id="msgArea">
+      <p>
+        يا دعاء يا بهجة العيد ويا أول أماني الفطر السعيد
 كل عام وأنتِ بقلبي وبقربي يا كل الخير والسرور
 هذا عيدنا الرابع معاً وكأنه أول يوم وقعت فيه بحبك
 أربع سنوات مرت وأنتِ يا دعاء تزدادين في عيني جمالاً ونوراً
@@ -284,18 +314,47 @@ export default function App() {
 أنتِ العيد في كل لحظة وأنتِ أجمل أعيادي الأربعة
 كل عام وأنتِ بخير ودام وجودك عيداً يسكن أعماق قلبي يا دعاء
 
-`}</p>
-              </div>
-            )}
+💕
+      </p>
+    </div>
 
-            <button className="btnb" onClick={() => { setPage(1); setShowMsg(false); }}>
-              ← رجوع
-            </button>
-          </div>
-        )}
+    <button class="btnb" onclick="goPage1()">← رجوع</button>
+  </div>
 
-      </div>
-    </>
-  );
-}
+  <script>
+    // قلوب طايرة
+    const emojis = ['💕','💗','💓','🌸','✨','💖','🩷'];
+    const container = document.getElementById('heartsContainer');
+    for (let i = 0; i < 22; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      h.style.left            = Math.random() * 100 + 'vw';
+      h.style.fontSize        = (13 + Math.random() * 14) + 'px';
+      h.style.animationDuration = (5 + Math.random() * 6) + 's';
+      h.style.animationDelay  = (Math.random() * 6) + 's';
+      container.appendChild(h);
+    }
+
+    function goPage2() {
+      document.getElementById('page1').classList.remove('active');
+      document.getElementById('page2').classList.add('active');
+      window.scrollTo(0,0);
+    }
+
+    function goPage1() {
+      document.getElementById('page2').classList.remove('active');
+      document.getElementById('msgArea').style.display = 'none';
+      document.getElementById('page1').classList.add('active');
+      window.scrollTo(0,0);
+    }
+
+    function showMsg() {
+      const m = document.getElementById('msgArea');
+      m.style.display = 'block';
+      setTimeout(() => m.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+    }
+  </script>
+</body>
+</html>
 
