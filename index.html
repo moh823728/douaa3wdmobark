@@ -1,0 +1,301 @@
+import { useState } from "react";
+
+const heartsData = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  emoji: ['💕','💗','💓','🌸','✨','💖','🩷'][Math.floor(Math.random() * 7)],
+  left: Math.random() * 100,
+  size: 14 + Math.random() * 14,
+  duration: 5 + Math.random() * 6,
+  delay: Math.random() * 6,
+}));
+
+const S = `
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+.root {
+  font-family:'Tajawal',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(160deg,#ffb3c6 0%,#ff8fab 40%,#ffc8dd 100%);
+  direction:rtl;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+@keyframes floatUp {
+  0%   { transform:translateY(0) scale(1); opacity:0.8; }
+  100% { transform:translateY(-110vh) scale(0.4); opacity:0; }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(35px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulse {
+  0%,100% { transform:scale(1); }
+  50%      { transform:scale(1.05); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0) scale(1); }
+  30%     { transform: translateY(-18px) scale(1.1); }
+  60%     { transform: translateY(-8px) scale(1.05); }
+}
+@keyframes sparkle {
+  0%,100% { opacity:1; transform:scale(1) rotate(0deg); }
+  50%     { opacity:0.5; transform:scale(1.4) rotate(180deg); }
+}
+@keyframes glow {
+  0%,100% { box-shadow: 0 0 20px rgba(255,100,150,0.4), 0 0 40px rgba(255,150,180,0.2); }
+  50%     { box-shadow: 0 0 40px rgba(255,100,150,0.7), 0 0 80px rgba(255,150,180,0.4); }
+}
+.heart-float { position:fixed; bottom:-50px; pointer-events:none; z-index:0; animation:floatUp linear infinite; }
+.page { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:22px; padding:40px 20px; min-height:100vh; justify-content:center; animation:fadeUp 0.7s ease both; }
+.title { font-size:clamp(1.9rem,7vw,3rem); font-weight:900; color:white; text-align:center; text-shadow:0 3px 20px rgba(180,30,80,0.4); letter-spacing:2px; }
+.sub   { font-size:1rem; color:rgba(255,255,255,0.92); text-align:center; text-shadow:0 2px 8px rgba(180,30,80,0.3); margin-top:-10px; }
+.btn1  { background:linear-gradient(135deg,#ff6b9d,#ff8fab,#ffb3c6); color:white; font-family:'Tajawal',sans-serif; font-size:1.05rem; font-weight:900; padding:12px 32px; border:2px solid rgba(255,255,255,0.4); border-radius:50px; cursor:pointer; box-shadow:0 6px 24px rgba(255,100,150,0.55); animation:pulse 2.2s ease-in-out infinite; text-shadow:0 1px 4px rgba(0,0,0,0.2); }
+.btn2  { background:linear-gradient(135deg,#c77dff,#e0aaff); color:white; font-family:'Tajawal',sans-serif; font-size:0.98rem; font-weight:700; padding:10px 26px; border:2px solid rgba(255,255,255,0.3); border-radius:50px; cursor:pointer; box-shadow:0 5px 18px rgba(180,100,255,0.45); transition:transform 0.2s; }
+.btn2:hover { transform:scale(1.05); }
+.btnb  { background:rgba(255,255,255,0.22); color:white; font-family:'Tajawal',sans-serif; font-size:0.88rem; font-weight:700; padding:8px 22px; border:2px solid rgba(255,255,255,0.45); border-radius:50px; cursor:pointer; backdrop-filter:blur(6px); transition:background 0.2s; }
+.btnb:hover { background:rgba(255,255,255,0.4); }
+.anim-box {
+  width:min(300px,85vw);
+  background:rgba(255,255,255,0.25);
+  backdrop-filter:blur(10px);
+  border-radius:28px;
+  border:3px solid rgba(255,255,255,0.6);
+  padding:28px 20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  animation:glow 2.5s ease-in-out infinite;
+}
+.anim-text {
+  font-size:1.4rem;
+  font-weight:900;
+  color:white;
+  text-shadow:0 2px 12px rgba(180,30,80,0.5);
+  text-align:center;
+  letter-spacing:1px;
+}
+.hearts-row {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+}
+.h1 { font-size:3rem; animation:bounce 1.4s ease-in-out infinite; }
+.h2 { font-size:2.2rem; animation:bounce 1.4s ease-in-out infinite 0.2s; }
+.h3 { font-size:2.8rem; animation:bounce 1.4s ease-in-out infinite 0.4s; }
+.h4 { font-size:1.8rem; animation:bounce 1.4s ease-in-out infinite 0.6s; }
+.stars-row {
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+.s1 { font-size:1.8rem; animation:sparkle 1.5s ease-in-out infinite; }
+.s2 { font-size:1.4rem; animation:sparkle 1.5s ease-in-out infinite 0.3s; }
+.s3 { font-size:2rem; animation:sparkle 1.5s ease-in-out infinite 0.6s; }
+.flower-row {
+  display:flex;
+  gap:14px;
+  font-size:1.6rem;
+}
+.fl { animation:spin 4s linear infinite; display:inline-block; }
+.msg-card { background:rgba(255,255,255,0.88); backdrop-filter:blur(12px); border-radius:24px; padding:26px 24px; max-width:min(540px,90vw); width:100%; box-shadow:0 12px 50px rgba(200,50,100,0.18); border:2px solid rgba(255,182,193,0.5); max-height:50vh; overflow-y:auto; animation:fadeUp 0.6s ease both; }
+.msg-card::-webkit-scrollbar { width:5px; }
+.msg-card::-webkit-scrollbar-thumb { background:#ff8fab; border-radius:10px; }
+.msg-text { font-size:1.03rem; line-height:2.1; color:#6d2b4e; white-space:pre-line; text-align:right; }
+`;
+
+function AnimBox() {
+  return (
+    <div className="anim-box">
+      <div className="flower-row">
+        <span className="fl">🌸</span>
+        <span className="fl" style={{animationDelay:"1s"}}>🌺</span>
+        <span className="fl" style={{animationDelay:"2s"}}>🌸</span>
+        <span className="fl" style={{animationDelay:"0.5s"}}>🌺</span>
+      </div>
+      <div className="hearts-row">
+        <span className="h1">💖</span>
+        <span className="h2">🩷</span>
+        <span className="h3">💗</span>
+        <span className="h4">💕</span>
+      </div>
+      <div className="anim-text">عيد مبارك يا دودوتي 🎀</div>
+      <div className="stars-row">
+        <span className="s1">✨</span>
+        <span className="s2">⭐</span>
+        <span className="s3">✨</span>
+        <span className="s2">⭐</span>
+        <span className="s1">✨</span>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [page, setPage] = useState(1);
+  const [showMsg, setShowMsg] = useState(false);
+
+  return (
+    <>
+      <style>{S}</style>
+      <div className="root">
+
+        {heartsData.map(h => (
+          <div key={h.id} className="heart-float" style={{
+            left: `${h.left}vw`,
+            fontSize: h.size,
+            animationDuration: `${h.duration}s`,
+            animationDelay: `${h.delay}s`,
+          }}>{h.emoji}</div>
+        ))}
+
+        {page === 1 && (
+          <div className="page" key="p1">
+            <div>
+              <div className="title">🌸 عيدك مبارك يا دودوتي 🌸</div>
+              <div className="sub">كل عام وأنتِ أغلى شيء في حياتي 💕</div>
+            </div>
+            <button className="btn1" onClick={() => { setPage(2); setShowMsg(false); }}>
+              💖 اضغطي هنا يا دودوتيي 💖
+            </button>
+          </div>
+        )}
+
+        {page === 2 && (
+          <div className="page" key="p2">
+            <div className="title" style={{ fontSize:"clamp(1.4rem,5vw,2.1rem)" }}>
+              🌸 عيدك مبارك يا دشدوشتي 🌸
+            </div>
+
+            <AnimBox />
+
+            <button className="btn2" onClick={() => setShowMsg(true)}>
+              💌 عبزي هنا ياحلوتي عيوني💌
+            </button>
+
+            {showMsg && (
+              <div className="msg-card">
+                <p className="msg-text">{`يا دعاء يا بهجة العيد ويا أول أماني الفطر السعيد
+كل عام وأنتِ بقلبي وبقربي يا كل الخير والسرور
+هذا عيدنا الرابع معاً وكأنه أول يوم وقعت فيه بحبك
+أربع سنوات مرت وأنتِ يا دعاء تزدادين في عيني جمالاً ونوراً
+عيد فطر مبارك يا من جعلتِ لكل أيام عمري معنى العيد
+أنتِ العيد قبل أن يبدأ العيد وأنتِ الفرح في كل حين
+في عيدنا الرابع أجد نفسي غارقاً في تفاصيلك يا دعاء أكثر
+ما أجمل العيد حين يُقضى بقربك يا سيدة هذا القلب
+كل نبضة في صدري تهتف باسم دعاء وتبارك لكِ بقدوم الفطر
+أنتِ لستِ مجرد شريكة أنتِ العيد الذي انتظره كل عام
+أربع أعوام من الحب والاحتواء فكل عام وأنتِ يا دعاء لي سكن
+يا شمس أعيادي ويا قمر لياليّ عيدك سعيد يا غاليتي
+كل عام وأنتِ الضحكة التي تُجمل وجهي والحياة يا دعاء
+ما كنتُ أعرف طعم عيد الفطر الحقيقي إلا حين صرتِ معي
+في هذا العيد الرابع أعدكِ يا دعاء بحبٍ يكبر ولا ينتهي أبداً
+أنتِ عيدي الدائم الذي لا يرحل برحيل المواسم والشهور
+كل عام وأنتِ أميرة قلبي والوحيدة التي تسكن الوجدان
+أربع سنوات من الذكريات الجميلة والقادم معكِ يا دعاء أجمل
+يا بهجة الروح ويا أغلى من سكن الروح عيدك مبارك
+تشرق شمس الفطر في العيد لكن نوري الحقيقي هو وجه دعاء
+أنتِ العيد في عيني وأنتِ الفرحة التي تغمر كوني
+مرت أربع أعوام وأنتِ الهدية التي أشكر الله عليها كل يوم
+يا ملاكي الطاهر يا دعاء كل عام وأنتِ في أتم الصحة والسعادة
+معكِ العيد له طعم مختلف ولون مختلف وإحساس فريد
+أنتِ رفيقة دربي في أربعة أعياد مضت وفي كل الأعياد القادمة
+كل عام وأنتِ يا دعاء نبض الوريد ونور العين وضياء العمر
+العيد معكِ ليس يوماً واحداً بل هو عمر كامل من الهيام
+يا من زينتِ حياتي بوجودك كل عام وأنتِ الحب الأول والأخير
+أربع سنوات وأنا أرى فيكِ يا دعاء العوض الجميل عن كل شيء
+عيد فطر سعيد يا من ملكتِ مفاتيح الفرح في قلبي الصغير
+أحبك في عيدنا الرابع أكثر مما أحببتك في الأول بآلاف المرات
+كل عام وأنتِ يا دعاء الغيمة التي تمطر على قلبي حباً وحناناً
+يا وردة عمري التي لا تذبل عيدك مليء بالحب والجمال
+أنتِ عيدي الذي أتباهى به أمام العالم أجمع وبكل فخر
+أربع أعوام من الوفاء كل عام وأنتِ يا دعاء لي الدنيا وما فيها
+كل عيد فطر وأنتِ أجمل الجميلات وأرق النسمات في حياتي
+وجودك معي يا دعاء هو العيد الحقيقي وما دونه مجرد أيام
+في عيدنا الرابع أشعر أنني ملكت الكون بأسره بوجودك
+يا أغلى ما أملك كل عام وأنتِ بخير يا حبيبة الروح دعاء
+كل عام وأنتِ منيرة دربي ومنسية همي ومصدر قوتي
+أربع سنوات وأنا أكتشف فيكِ يا دعاء جمالاً جديداً في كل يوم
+يا من يبتسم العيد بابتسامتها كل عام وأنتِ سعادتي
+أنتِ العيد الذي أتمناه في كل لحظة وفي كل ثانية
+كل عام وأنتِ النور الذي يبدد ظلام أيامي الحزينة يا دعاء
+أربع سنوات من العشق وعمر مديد من الحب بانتظارنا
+عيد فطر مبارك يا دعاء يا من تسكنين بين الرمش والعين والقلب
+أنتِ عيدي الذي لا ينتهي وفرحي الذي لا ينقطع
+كل عام وأنتِ يا دعاء أغلى هدايا القدر وأجمل أقداري
+في عيدنا الرابع أجدد لكِ العهد بأن تظلي أنتِ الوحيدة
+يا بسمة العيد ويا روح الحياة يا دعاء كل عام وأنتِ بخير
+أنتِ التي تجعلين لعيد الفطر طعماً من السكر والحب الخالص
+أربع أعوام مرت وكأنها حلم جميل لا أريد الاستيقاظ منه
+كل عام وأنتِ معي وبقربي وفي وسط قلبي المخلص يا دعاء
+يا سيدة النساء في عيني عيدك سعيد وعمرك مديد
+أنتِ العيد يا دعاء وأنا بغيرك لا أعرف للفرح طريقاً أو عنواناً
+كل عام وأنتِ الرفيقة والحبيبة والصديقة والأهل
+أربع سنوات وأنتِ تزدادين في قلبي يا دعاء وقاراً وحباً وعشقاً
+عيدك مبارك يا من جعلتِ حياتي جنة بجمال روحك
+أنتِ الفرحة التي أنتظرها كل عام بلهفة الشوق والحنين
+كل عام وأنتِ يا دعاء شريكة نجاحي وفرحي وحزني وكل تفاصيلي
+أربع سنوات من الدفء كل عام وأنتِ شعلة قلبي
+يا من بجمالك تنافسين الورد يا دعاء كل عام وأنتِ عيدي
+أنتِ العيد الحقيقي لقلبي والباقي مجرد تقويم وزمان
+كل عام وأنتِ في حفظ الله ورعايته يا دعاء يا أغلى البشر
+أربع سنوات وأنتِ الأميرة المتوجة على عرش أحلامي
+عيد فطر سعيد يا دعاء يا من جعلتِ للكلمات معنى وللحب وطناً
+أنتِ عيدي الذي أفتخر به وسعادتي التي لا توصف
+كل عام وأنتِ يا دعاء السند والظهر والحب الذي لا يميل
+أربع سنوات من الجمال كل عام وأنتِ يا دعاء قمر زماني
+يا من ملكتِ قلبي برقة إحساسك عيدك مبارك وسعيد
+أنتِ العيد الذي يملأ كوني بالبهجة والسرور والرضا يا دعاء
+كل عام وأنتِ النعمة التي أدعو الله أن يديمها عليّ
+أربع سنوات وأنا أزداد بكِ يا دعاء فخراً وتيهاً بين الناس
+عيد سعيد يا أغلى من الروح ويا نبض القلب الصادق
+أنتِ عيدي في كل يوم وليس فقط في أيام عيد الفطر
+كل عام وأنتِ الحلم الذي تحقق وأصبح واقعاً جميلاً
+أربع سنوات وأنتِ يا دعاء تسكنين في أعماق قلبي ووجداني
+يا من بوجودك يكتمل عيدي كل عام وأنتِ يا دعاء بألف خير
+أنتِ العيد الذي يمحو تعب الأيام ومرارة السنين
+كل عام وأنتِ الحب الذي لا يتغير ولا يتبدل أبداً يا دعاء
+أربع سنوات من العطاء كل عام وأنتِ لي كل شيء
+عيدك مبارك يا دعاء يا أغلى إنسانة عرفتها في حياتي كلها
+أنتِ عيدي وابتسامتي وفرحي الدائم والجميل جداً
+كل عام وأنتِ يا دعاء النجمة التي تضيء سماء عمري المظلمة
+أربع سنوات من الحكايات الجميلة وعيدي معكِ لا ينتهي
+يا من بحبكِ أزهرت حياتي كل عام وأنتِ يا دعاء بأفضل حال
+أنتِ العيد الذي يراقص قلبي طرباً بقدومه الميمون
+كل عام وأنتِ لي يا دعاء وكل عام وأنا لكِ وحدكِ يا حبيبتي
+أربع سنوات وأنتِ تملئين قلبي حنيناً وشوقاً ومحبة
+عيد فطر سعيد يا دعاء يا من جعلتِ من بيتي وقلبي مكاناً للسعادة
+أنتِ العيد الذي يفوح منه مسك الحب وعطر الوفاء
+كل عام وأنتِ يا دعاء الأمل الذي أعيش عليه وأتمسك به
+أربع سنوات وأنا أرى في عينيكِ مستقبلي المشرق
+عيدك مبارك يا من غيرتِ يا دعاء مجرى حياتي للأفضل دائماً
+أنتِ العيد الذي أرتدي له أجمل مشاعري وأرقى أحاسيسي
+كل عام وأنتِ الحبيبة التي لا يمل قلبي من عشقها يا دعاء
+أربع سنوات من الوفاق كل عام وأنتِ عيدي الأبدي
+يا من بوجودك تحلو الأيام عيدك سعيد ومبارك يا دعاء
+أنتِ العيد في كل لحظة وأنتِ أجمل أعيادي الأربعة
+كل عام وأنتِ بخير ودام وجودك عيداً يسكن أعماق قلبي يا دعاء
+
+`}</p>
+              </div>
+            )}
+
+            <button className="btnb" onClick={() => { setPage(1); setShowMsg(false); }}>
+              ← رجوع
+            </button>
+          </div>
+        )}
+
+      </div>
+    </>
+  );
+}
+
